@@ -206,14 +206,6 @@ module.exports = {
             inspect: '^(?!.*(@core|@layouts)).*',
           },
         },
-        {
-          regex: 'import axios from \'axios\'',
-          replacement: 'import axios from \'@axios\'',
-          message: 'Use axios instances created in \'resources/js/plugin/axios.js\' instead of unconfigured axios',
-          files: {
-            ignore: '^.*plugins/axios.js.*',
-          },
-        },
       ],
 
       // Ignore files
@@ -224,7 +216,21 @@ module.exports = {
     'import/resolver': {
       node: {
         extensions: ['.js', '.js', '.jsx', '.jsx', '.mjs', '.png', '.jpg'],
-      }, alias: { 'extensions': ['.ts', '.js', '.tsx', '.jsx', '.mjs'], 'map': [["@", "./resources/js"], ["@core", "./resources/js/@core"], ["@layouts", "./resources/js/@layouts"], ["@images", "./resources/js/assets/images/"], ["@styles", "./resources/js/styles/"], ["@configured-variables", "./resources/js/styles/variables/_template.scss"], ["@axios", "./resources/js/plugins/axios"], ["apexcharts", "node_modules/apexcharts-clevision"]] },
+      }, alias: { 
+        'extensions': ['.ts', '.js', '.tsx', '.jsx', '.mjs'], 
+        'map': [
+          ["@", "./resources/js"], 
+          ["@core", "./resources/js/@core"], 
+          ["@layouts", "./resources/js/@layouts"], 
+          ["@images", "./resources/js/assets/images/"], 
+          ["@styles", "./resources/js/styles/"], 
+          ["@configured-variables", "./resources/js/styles/variables/_template.scss"], 
+          ["@plugins", "./resources/js/plugins/"], 
+          ["@utils", "./resources/js/utils/"],
+          ["@validators", "./resources/js/utils/validators.js"],
+          ["apexcharts", "node_modules/apexcharts-clevision"],
+        ],
+      },
     },
   },
 }
