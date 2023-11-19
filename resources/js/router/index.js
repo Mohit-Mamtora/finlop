@@ -46,15 +46,24 @@ const router = createRouter({
         {
           path: 'login',
           name: 'login',
+          meta: {
+            guest: true,
+          },
           component: () => import('../pages/login.vue'),
         },
         {
           path: 'register',
           name: 'register',
+          meta: {
+            guest: true,
+          },
           component: () => import('../pages/register.vue'),
         },
         {
           path: '/:pathMatch(.*)*',
+          meta: {
+            guest: true,
+          },
           component: () => import('../pages/[...all].vue'),
         },
       ],
@@ -65,13 +74,10 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   const store = userStore()
   const { isAuthenticated } = storeToRefs(store)
-  if (!isAuthenticated &&
 
-    // ❗️ Avoid an infinite redirect
-    to.name !== 'Login'
-  ) {
+  if (!isAuthenticated.value &&  !to.meta?.guest) {
     // redirect the user to the login page
-    return { name: 'Login' }
+    return { name: 'login' }
   }
 })
 

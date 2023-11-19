@@ -1,10 +1,12 @@
 import { defineStore } from "pinia"
+import axios from "@plugins/ApiService"
+
 
 export const userStore = defineStore('user', {
   state: () => (
     {
       user: {
-        id: null, 
+        id: null,
         name: null,
         email: null,
         password: null,
@@ -16,8 +18,15 @@ export const userStore = defineStore('user', {
     isAuthenticated: state => state.sessionToken != null,
   },
   actions: {
-    login(username, password) {
-      console.log(username, password)
+    async login(params) {
+      try {
+        const { response } = await axios.request(window.location.origin + "/login", "post", params)
+
+        return response
+      } catch ({ response }) {
+
+        return response
+      }
     },
   },
 })

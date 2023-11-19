@@ -1,25 +1,58 @@
 <script setup>
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
+import { userStore } from '@/stores/user'
 import { useTheme } from 'vuetify'
+import {
+  emailValidator,
+  requiredValidator,
+} from '@validators'
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
 import authV1MaskLight from '@images/pages/auth-v1-mask-light.png'
 import authV1Tree2 from '@images/pages/auth-v1-tree-2.png'
 import authV1Tree from '@images/pages/auth-v1-tree.png'
+import { useRouter } from 'vue-router'
 
 const form = ref({
   email: '',
   password: '',
   remember: false,
+  error: null,
 })
 
+
+const userModel = userStore()
+
+const refVForm = ref()
+const errorMessage = ref()
 const vuetifyTheme = useTheme()
+const router = useRouter()
 
 const authThemeMask = computed(() => {
   return vuetifyTheme.global.name.value === 'light' ? authV1MaskLight : authV1MaskDark
 })
 
 const isPasswordVisible = ref(false)
+
+const submit = () => {
+  refVForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      login()
+  })
+}
+
+const login = () => {
+  userModel.login(form.value)
+    .then(response => {
+      if (response.status == 429) {
+        errorMessage.value = response.data.message
+      } else  if (response.status == 422) {
+        errorMessage.value = response.data.errors.email[0]
+      } else  if (response.status == 200) {
+        router.push({ name: "dashboard" })
+      }
+    })
+}
 </script>
 
 <template>
@@ -36,28 +69,38 @@ const isPasswordVisible = ref(false)
         </template>
 
         <VCardTitle class="font-weight-semibold text-2xl text-uppercase">
-          Materio
+          FINLOP
         </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h5 class="text-h5 font-weight-semibold mb-1">
-          Welcome to Materio! 👋🏻
-        </h5>
         <p class="mb-0">
           Please sign-in to your account and start the adventure
         </p>
       </VCardText>
+      <VCardText
+        v-if="errorMessage"
+        class="pt-2"
+      >
+        <p class="mb-0 text-danger">
+          {{ errorMessage }}
+        </p>
+      </VCardText>
 
       <VCardText>
-        <VForm @submit.prevent="() => {}">
+        <VForm
+          ref="refVForm"
+          @submit.prevent="submit"
+        >
           <VRow>
             <!-- email -->
             <VCol cols="12">
               <VTextField
                 v-model="form.email"
+                name="email"
                 label="Email"
                 type="email"
+                :rules="[requiredValidator, emailValidator]"
               />
             </VCol>
 
@@ -65,9 +108,11 @@ const isPasswordVisible = ref(false)
             <VCol cols="12">
               <VTextField
                 v-model="form.password"
+                name="password"
                 label="Password"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+                :rules="[requiredValidator]"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
               />
 
@@ -90,7 +135,6 @@ const isPasswordVisible = ref(false)
               <VBtn
                 block
                 type="submit"
-                to="/"
               >
                 Login
               </VBtn>
